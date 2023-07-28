@@ -1,4 +1,11 @@
-import { ContainerItems, Container, ListMusic, ContainerInput } from './styles'
+import {
+  ContainerItems,
+  ContainerBackground,
+  ListMusic,
+  ContainerInput,
+  Header,
+  InfoAlbum,
+} from './styles'
 import { Button } from '../Button/styles'
 import api from '../services/api'
 import { useState, useEffect } from 'react'
@@ -7,29 +14,30 @@ import formatTime from '../utils/formatTime'
 import Logo from '../assets/logo.png'
 
 function Home() {
-  const [album, setAlbum] = useState()
+  const [albums, setAlbums] = useState()
 
   useEffect(() => {
-    async function getAlbum() {
+    async function getAlbums() {
       const {
         data: { data },
       } = await api.get('/album?keyword=rei')
-      setAlbum(data)
+      setAlbums(data)
       console.log(data)
     }
-    getAlbum()
+    getAlbums()
   }, [])
 
   return (
     <>
-      {album && (
-        <Container>
+      {albums && (
+        <ContainerBackground>
           <ContainerItems>
-            <div className="header">
+            <Header>
               <img src={Logo} />
               <h1>Discografia</h1>
-            </div>
-            <div style={{ padding: '10px' }}>
+            </Header>
+
+            <div style={{ padding: '20px', height: '100vh' }}>
               <p>Digite uma palavra chave</p>
 
               <ContainerInput>
@@ -38,30 +46,38 @@ function Home() {
               </ContainerInput>
 
               <ListMusic>
-                {album.map((x) => {
+                {albums.map((album) => {
                   return (
-                    <>
-                      <div>
-                        <h2>
-                          {x.name}, {x.year}
-                        </h2>
-                      </div>
-                      <p>Faixa</p>
-                      {x.tracks.map((track) => {
-                        return (
+                    <div key={album.id}>
+                      <h2>
+                        {album.name}, {album.year}
+                      </h2>
+
+                      {album.tracks.map((track) => (
+                        <InfoAlbum key={track.id}>
+                          <div className="infoMusic">
+                            <div>
+                              <p>N°</p>
+                              <p>{track.number}</p>
+                            </div>
+                            <div>
+                              <p>Faixa</p>
+                              <p>{track.title}</p>
+                            </div>
+                          </div>
                           <div>
-                            <p>{track.title}</p>
+                            <p>Duração</p>
                             <p>{formatTime(track.duration)}</p>
                           </div>
-                        )
-                      })}
-                    </>
+                        </InfoAlbum>
+                      ))}
+                    </div>
                   )
                 })}
               </ListMusic>
             </div>
           </ContainerItems>
-        </Container>
+        </ContainerBackground>
       )}
     </>
   )
